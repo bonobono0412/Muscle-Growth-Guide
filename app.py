@@ -1,7 +1,14 @@
 
-# 근성장 가이드 프로그램
+import streamlit as st
 
-# 부위별 운동 목록
+# 페이지 설정
+st.set_page_config(
+    page_title="근성장 가이드",
+    page_icon="💪",
+    layout="centered"
+)
+
+# 부위별 운동 리스트
 luten = ['이두컬', '해머컬', '트라이셉스 푸시다운']
 chest = ['벤치프레스', '덤벨프레스', '푸쉬업']
 back = ['랫풀다운', '시티드로우', '데드리프트']
@@ -30,73 +37,89 @@ def workout(part):
     else:
         return [], '잘못된 부위입니다.'
 
-    # 추천 운동 반환
     recommendation = routine[0]
 
     return routine, recommendation
 
 
-# 프로그램 시작
-print("================================")
-print("       근성장 가이드 프로그램")
-print("================================")
+# 웹사이트 제목
+st.title("💪 근성장 가이드")
+st.subheader("나만의 운동 루틴 만들기")
+
+st.write("원하는 근성장 부위와 주간 운동 횟수를 선택하세요!")
+
+st.divider()
 
 # 근성장 부위 선택
-print("\n근성장 부위를 선택하세요.")
-print("1. 팔")
-print("2. 가슴")
-print("3. 등")
-print("4. 복근")
-print("5. 다리")
+st.header("1. 근성장 부위 선택")
 
-choice = input("선택: ")
+part = st.selectbox(
+    "운동할 부위를 선택하세요.",
+    ['팔', '가슴', '등', '복근', '다리']
+)
 
-parts = {
-    '1': '팔',
-    '2': '가슴',
-    '3': '등',
-    '4': '복근',
-    '5': '다리'
-}
+# 주간 운동 횟수 선택
+st.header("2. 주간 운동 횟수 선택")
 
-if choice not in parts:
-    print("잘못된 선택입니다.")
+age = st.selectbox(
+    "일주일에 몇 번 운동할까요?",
+    [1, 2, 3, 4, 5, 6, 7],
+    index=2,
+    format_func=lambda x: f"주 {x}회"
+)
 
-else:
-    part = parts[choice]
+st.divider()
 
-    # 주 운동 횟수 선택
-    age = int(input("\n주 운동 횟수를 선택하세요 (1~7): "))
+# 루틴 생성 버튼
+if st.button("🔥 나의 운동 루틴 생성하기", use_container_width=True):
 
-    if age < 1 or age > 7:
-        print("운동 횟수는 1~7 사이로 입력하세요.")
+    routine, recommendation = workout(part)
 
-    else:
-        # 함수 호출
-        routine, recommendation = workout(part)
+    st.success("운동 루틴이 생성되었습니다!")
 
-        print("\n========== 운동 결과 ==========")
-        print("선택한 근성장 부위:", part)
-        print("주 운동 횟수:", age, "회")
+    # 선택 정보 출력
+    st.header("📋 나의 운동 정보")
 
-        # 운동 횟수가 적을 경우
-        if age <= 2:
-            print("운동 횟수가 적어 근성장에 시간이 오래 걸릴 수 있습니다.")
+    col1, col2 = st.columns(2)
 
-        # 운동 루틴 출력
-        print("\n[추천 운동 루틴]")
+    with col1:
+        st.metric("선택 부위", part)
+
+    with col2:
+        st.metric("주간 운동 횟수", f"{age}회")
+
+    # 운동 횟수가 적을 경우
+    if age <= 2:
+        st.warning(
+            "운동 횟수가 적어 근성장에 시간이 오래 걸릴 수 있습니다."
+        )
+
+    # 운동 루틴 출력
+    st.header("🏋️ 추천 운동 루틴")
+
+    for exercise in routine:
+        st.write(f"✅ {exercise}")
+
+    # 주간 운동 데이터 생성
+    st.header("📅 주간 운동 계획")
+
+    for day in range(1, age + 1):
+
+        st.subheader(f"Day {day}")
 
         for exercise in routine:
-            print("-", exercise)
+            st.write(f"- {exercise}")
 
-        # 주간 루틴 데이터 생성
-        print("\n[주간 운동 루틴 데이터]")
+    # 추천 운동 출력
+    st.divider()
 
-        for day in range(1, age + 1):
-            for exercise in routine:
-                print(f"Day {day}: {exercise}")
+    st.header("⭐ 가장 추천하는 운동")
 
-        # 추천 운동 출력
-        print("\n가장 추천하는 운동:", recommendation)
+    st.success(f"오늘의 추천 운동은 **{recommendation}** 입니다!")
 
-        print("\n근성장 가이드를 이용해 주셔서 감사합니다!")
+    st.balloons()
+
+st.divider()
+
+st.caption("근성장 가이드 | 나만의 운동 루틴 만들기")
+
